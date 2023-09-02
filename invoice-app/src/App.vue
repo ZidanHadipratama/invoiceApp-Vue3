@@ -2,7 +2,6 @@
   <div>
     <div class="app flex" v-if="!mobile">
       <navigation/>
-      <h2 style="color: white">testing</h2>
       <div class="app-content flex flex-column">
         <router-view />
       </div>
