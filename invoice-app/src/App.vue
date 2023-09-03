@@ -64,6 +64,7 @@ export default {
   .app-content{
     padding: 0 20px;
     position: relative;
+    width: 100%;
   }
 }
 
