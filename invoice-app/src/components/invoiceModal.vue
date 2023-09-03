@@ -70,7 +70,7 @@
                 </div>
                 <div class="input flex flex-column">
                     <label for="paymentTerms">Payment Terms</label>
-                    <select required type="text" id="paymentTerms" v-model="paymentTerms">
+                    <select required id="paymentTerms" v-model="paymentTerms">
                         <option value="30">Net 30 Days</option>
                         <option value="60">Net 60 Days</option>
                     </select>
@@ -94,7 +94,7 @@
                             <td class="qty"><input type="text" v-modal="item.qty"></td>
                             <td class="price"><input type="text" v-modal="item.price"></td>
                             <td class="total flex">${{ item.total = item.qty * item.price }}</td>
-                            <img src="@/assets/icon-delete.svg" alt="" @click="deleteInvoiceItem(item, id)">
+                            <img src="@/assets/icon-delete.svg" alt="" @click="deleteInvoiceItem(item.id)">
                         </tr>
                     </table>
                     <div class="flex button" @click="addNewInvoiceItem">
@@ -118,35 +118,73 @@
 </template>
 
 <script>
+import { mapMutations } from 'vuex';
+import {uid} from 'uid';
+
 export default {
     name: "invoiceModal",
     data() {
         return {
-        dateOptions: { year: "numeric", month: "short", day: "numeric" },
-        docId: null,
-        loading: null,
-        billerStreetAddress: null,
-        billerCity: null,
-        billerZipCode: null,
-        billerCountry: null,
-        clientName: null,
-        clientEmail: null,
-        clientStreetAddress: null,
-        clientCity: null,
-        clientZipCode: null,
-        clientCountry: null,
-        invoiceDateUnix: null,
-        invoiceDate: null,
-        paymentTerms: null,
-        paymentDueDateUnix: null,
-        paymentDueDate: null,
-        productDescription: null,
-        invoicePending: null,
-        invoiceDraft: null,
-        invoiceItemList: [],
-        invoiceTotal: 0,
+            dateOptions: { year: "numeric", month: "short", day: "numeric" },
+            docId: null,
+            loading: null,
+            billerStreetAddress: null,
+            billerCity: null,
+            billerZipCode: null,
+            billerCountry: null,
+            clientName: null,
+            clientEmail: null,
+            clientStreetAddress: null,
+            clientCity: null,
+            clientZipCode: null,
+            clientCountry: null,
+            invoiceDateUnix: null,
+            invoiceDate: null,
+            paymentTerms: null,
+            paymentDueDateUnix: null,
+            paymentDueDate: null,
+            productDescription: null,
+            invoicePending: null,
+            invoiceDraft: null,
+            invoiceItemList: [],
+            invoiceTotal: 0,
         };
     },
+    created(){
+
+        //Get Curent Date
+
+        this.invoiceDateUnix = Date.now()
+        this.invoiceDate = new Date(this.invoiceDateUnix).toLocaleDateString('en-us', this.dateOptions)
+    },
+    methods: {
+        ...mapMutations(['TOGGLE_INVOICE']),
+
+        closeInvoice(){
+            this.TOGGLE_INVOICE();
+        },
+
+        addNewInvoiceItem(){
+            this.invoiceItemList.push({
+                id: uid(),
+                itemName: '',
+                qty: '',
+                price: 0,
+                total: 0,
+            })
+        },
+
+        deleteInvoiceItem(id){
+            this.invoiceItemList = this.invoiceItemList.filter(item => item.id !== id)
+        }
+    },
+    watch: {
+        paymentTerms(){
+            const futureDate = new Date()
+            this.paymentDueDateUnix = futureDate.setDate(futureDate.getDate() + parseInt(this.paymentTerms))
+            this.paymentDueDate = new Date(this.paymentDueDateUnix).toLocaleDateString('en-us', this.dateOptions)
+        }
+    }
 }
 </script>
 
@@ -316,5 +354,16 @@ export default {
             outline: none;
         }
     }
+}
+
+
+// Hide Scrollbar
+.invoice-wrap::-webkit-scrollbar{
+    display: none;
+}
+
+.invoice-wrap{
+    -ms-overflow-style: none;
+    scrollbar-width: none;
 }
 </style>

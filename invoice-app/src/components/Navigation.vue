@@ -1,6 +1,6 @@
 <template>
     <header class="flex">
-        <div class="branding">
+        <div class="branding flex">
             <img src="@/assets/file-invoice-dollar-solid.png" alt=""/>
         </div>
     </header>
