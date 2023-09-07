@@ -118,7 +118,7 @@
 </template>
 
 <script>
-import db from "../Firebase/firebaseinit"
+import { db } from "../firebase/firebaseInit";
 import { mapMutations } from 'vuex';
 import {uid} from 'uid';
 
@@ -202,7 +202,7 @@ export default {
 
             this.calInvoiceTotal()
 
-            const dataBase = db.collection('invoice').doc();
+            const dataBase = db.firestore().collection("invoice").doc();
 
             await dataBase.set({
                 invoiceId: uid(6),
@@ -228,6 +228,8 @@ export default {
                 invoiceDraft: this.invoiceDraft,
                 invoicePaid: null,
             })
+
+            this.TOGGLE_INVOICE();
         },
 
         submitForm(){
