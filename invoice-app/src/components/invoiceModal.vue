@@ -1,6 +1,7 @@
 <template>
     <div class="invoice-wrap flex flex-column" @click="checkClick" ref="invoiceWrap">
         <form @submit.prevent="submitForm" class="invoice-content">
+            <Loading v-show="loading"/>
             <h1>New Invoice</h1>
 
 
@@ -106,11 +107,11 @@
 
             <div class="save flex">
                 <div class="left">
-                    <button class="red" @click="closeInvoice">Cancel</button>
+                    <button class="red" @click="closeInvoice" type="button">Cancel</button>
                 </div>
                 <div class="right flex">
-                    <button class="dark-purple"  @click="saveDraft">Save Draft</button>
-                    <button class="purple"  @click="publishInvoice">Create Invoice</button>
+                    <button class="dark-purple"  @click="saveDraft" type="submit">Save Draft</button>
+                    <button class="purple"  @click="publishInvoice" type="submit">Create Invoice</button>
                 </div>
             </div>
         </form>
@@ -119,6 +120,7 @@
 
 <script>
 import { db } from "../firebase/firebaseInit";
+import Loading from '@/components/Loading.vue';
 import { mapMutations } from 'vuex';
 import {uid} from 'uid';
 
@@ -127,6 +129,7 @@ export default {
     data() {
         return {
             dateOptions: { year: "numeric", month: "short", day: "numeric" },
+            loading: null,
             docId: null,
             loading: null,
             billerStreetAddress: null,
@@ -151,6 +154,9 @@ export default {
             invoiceTotal: 0,
         };
     },
+    components: {
+        Loading,
+    },
     created(){
 
         //Get Curent Date
@@ -159,7 +165,13 @@ export default {
         this.invoiceDate = new Date(this.invoiceDateUnix).toLocaleDateString('en-us', this.dateOptions)
     },
     methods: {
-        ...mapMutations(['TOGGLE_INVOICE']),
+        ...mapMutations(['TOGGLE_INVOICE', 'TOGGLE_MODAL']),
+
+        checkClick(e){
+            if (e.target == this.$refs.invoiceWrap){
+                this.TOGGLE_MODAL();
+            }
+        },
 
         closeInvoice(){
             this.TOGGLE_INVOICE();
@@ -200,9 +212,11 @@ export default {
                 return;
             }
 
+            this.loading = true
+
             this.calInvoiceTotal()
 
-            const dataBase = db.firestore().collection("invoice").doc();
+            const dataBase = db.collection("invoice").doc();
 
             await dataBase.set({
                 invoiceId: uid(6),
@@ -228,6 +242,8 @@ export default {
                 invoiceDraft: this.invoiceDraft,
                 invoicePaid: null,
             })
+
+            this.loading = false
 
             this.TOGGLE_INVOICE();
         },
