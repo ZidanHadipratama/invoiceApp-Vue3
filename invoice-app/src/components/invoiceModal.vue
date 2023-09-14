@@ -119,7 +119,7 @@
 </template>
 
 <script>
-import { db } from "../firebase/firebaseInit";
+import { db } from "../firebase/firebaseinit";
 import Loading from '@/components/Loading.vue';
 import { mapMutations } from 'vuex';
 import {uid} from 'uid';
